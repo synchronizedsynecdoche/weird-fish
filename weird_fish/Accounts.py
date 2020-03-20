@@ -11,23 +11,6 @@ class Accounts:
         self.endpoint = url + "/api/v1/accounts/"
 
     
-    def object_encoder(self, info):
-
-        """ Encode the json from get_account in an object for easier use 
-
-            Args:
-                info: the serialized JSON response
-            
-            Returns:
-                an AccountInstance object populated with the data 
-        """
-        
-        return AccountInstance(info['id'], info['username'], info['acct'], info['display_name'], info['locked'], info['bot'],info['discoverable'],
-                               info['group'],info['created_at'],info['note'],info['url'], info['avatar'], info['avatar_static'],info['header'],
-                               info['header_static'], info['followers_count'], info['following_count'], info['statuses_count'],info['last_status_at'],
-                                info['emojis'], info['fields'])
-
-    
     def get_account(self, id, account_object=True):
 
         """Gets publically available information about an account
@@ -51,10 +34,6 @@ class Accounts:
 
         """
 
-        if id < 0:
-            raise ValueError("Bad ID: IDs must be at least 0")
-
-
         response = requests.get(self.endpoint + str(id))
 
         if response.status_code == 410:
@@ -62,8 +41,8 @@ class Accounts:
             raise RuntimeError(f"Account with ID {id} is suspended!")
 
         if not response.ok:
-
-            raise RuntimeError(f"Bad response from {self.endpoint}")
+            print(self.endpoint + str(id))
+            raise RuntimeError(f"Bad response from {self.endpoint + str(id)}")
 
         unraveled = json.loads(response.text)
         
@@ -71,4 +50,4 @@ class Accounts:
             return unraveled
         
 
-        return self.object_encoder(unraveled)
+        return AccountInstance(response.text)
